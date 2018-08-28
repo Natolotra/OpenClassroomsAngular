@@ -1,4 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { PostService } from '../services/post.service';
 
 @Component({
   selector: 'app-post',
@@ -7,31 +9,29 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class PostComponent implements OnInit {
 
-  @Input() title : string;
-  @Input() content: string;
-  @Input() loveIts: number;
-  @Input() created_at: Date;
+  posts: any[];
+  postSubscription: Subscription;
 
-  constructor() { }
+  constructor(private postService: PostService) { }
 
   ngOnInit() {
+    this.postSubscription = this.postService.postsSubject.subscribe(
+      (posts: any[]) => {
+        this.posts = posts;
+      }
+    );
+    this.postService.emitAppareilSubject();
   }
 
-  getColor(){
-    if(this.loveIts > 0){
-      return 'green';
-    } else if(this.loveIts < 0){
-      return 'red';
-    }else{
-      return 'black';
-    }
+  upLoveIt(index: number){
+    this.postService.upLoveIts(index);
   }
 
-  upLoveIt(){
-    this.loveIts++;
+  downLoveIt(index: number){
+    this.postService.downLoveIts(index);
   }
 
-  downLoveIt(){
-    this.loveIts--;
+  deletePost(index: number){
+    this.postService.deleteByIndex(index);
   }
 }
